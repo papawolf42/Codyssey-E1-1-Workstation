@@ -1,5 +1,11 @@
 # Codyssey E1-1 Workstation — 필수 체크리스트
 
+## 1) 프로젝트 개요
+
+이 미션은 터미널, Docker, Git/GitHub를 이용해 개발 환경을 구성하고, 그 과정을 재현 가능한 형태로 정리하는 작업이다. 터미널에서는 작업 디렉토리와 파일, 권한을 관리하고 Docker에서는 이미지와 컨테이너를 실행한다.
+
+Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속을 확인한다. 바인드 마운트로 호스트의 변경 사항이 컨테이너에 반영되는지 확인하고, Docker 볼륨으로 컨테이너를 삭제한 뒤에도 데이터가 유지되는지 확인한다. 수행한 명령과 결과는 README에 기록해 다른 환경에서도 같은 절차를 따라 실행할 수 있도록 한다.
+
 ## 2) 수행 체크리스트
 
 - [ ] 터미널 기본 조작 및 폴더 구성
@@ -77,7 +83,7 @@
     - [ ] Docker 볼륨과 영속 데이터 설명
 
 - [ ] Git 설정 + VSCode GitHub 연동
-    - [ ] Git 사용자 정보 설정 — `git config user.name`, `git config user.email`
+    - [x] Git 사용자 정보 설정 — `git config user.name`, `git config user.email`
     - [ ] 기본 브랜치 설정 — `git branch -M main`
     - [ ] Git 설정 결과 기록 — `git config --list`
     - [ ] VSCode에서 GitHub 로그인
