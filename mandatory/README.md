@@ -17,17 +17,17 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
 
 ## 3) 수행 체크리스트
 
-- [ ] 터미널 기본 조작 및 폴더 구성
-    - [ ] 현재 위치 확인 — `pwd`
-    - [ ] 목록 확인(숨김 파일 포함) — `ls -la`
-    - [ ] 디렉토리 이동 — `cd <directory>`
-    - [ ] 디렉토리·파일 생성 — `mkdir`, `touch`
-    - [ ] 파일 내용 확인 — `cat <file>`
-    - [ ] 파일 복사 — `cp <source> <destination>`
-    - [ ] 파일 이동·이름 변경 — `mv <source> <destination>`
-    - [ ] 파일·디렉토리 삭제 — `rm`, `rmdir`
-    - [ ] 빈 파일 생성 — `touch <empty_file>`
-    - [ ] 명령어와 출력 결과 기록
+- [x] 터미널 기본 조작 및 폴더 구성
+    - [x] 현재 위치 확인 — `pwd`
+    - [x] 목록 확인(숨김 파일 포함) — `ls -la`
+    - [x] 디렉토리 이동 — `cd <directory>`
+    - [x] 디렉토리·파일 생성 — `mkdir`, `touch`
+    - [x] 파일 내용 확인 — `cat <file>`
+    - [x] 파일 복사 — `cp <source> <destination>`
+    - [x] 파일 이동·이름 변경 — `mv <source> <destination>`
+    - [x] 파일·디렉토리 삭제 — `rm`, `rmdir`
+    - [x] 빈 파일 생성 — `touch <empty_file>`
+    - [x] 명령어와 출력 결과 기록
 
 - [ ] 권한 변경 실습
     - [ ] 파일 1개의 권한 확인 및 변경 — `ls -l`, `chmod`
@@ -100,3 +100,74 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [ ] GitHub 저장소 링크와 접근 가능 여부 확인
     - [ ] Git과 GitHub의 역할 차이 설명
     - [ ] ID·비밀번호·토큰 등 민감정보 미포함 확인
+
+## 4) 수행 기록
+
+### 4-1) 터미널 기본 조작
+
+```console
+$ cd Codyssey-E1-1-Workstation
+$ pwd
+/Users/papawolf8572/Dev/Codyssey-E1-1-Workstation
+
+$ cd mandatory
+$ pwd
+/Users/papawolf8572/Dev/Codyssey-E1-1-Workstation/mandatory
+
+$ ls -al
+total 16
+drwxr-xr-x  3 papawolf8572  papawolf8572    96 Jul 29 14:24 .
+drwxr-xr-x  5 papawolf8572  papawolf8572   160 Jul 29 14:24 ..
+-rw-r--r--  1 papawolf8572  papawolf8572  5232 Jul 29 14:24 README.md
+
+$ mkdir -p site scratch
+$ ls -al
+total 16
+drwxr-xr-x  5 papawolf8572  papawolf8572   160 Jul 29 14:24 .
+drwxr-xr-x  5 papawolf8572  papawolf8572   160 Jul 29 14:24 ..
+-rw-r--r--  1 papawolf8572  papawolf8572  5232 Jul 29 14:24 README.md
+drwxr-xr-x  2 papawolf8572  papawolf8572    64 Jul 29 14:24 scratch
+drwxr-xr-x  2 papawolf8572  papawolf8572    64 Jul 29 14:24 site
+
+$ touch scratch/draft.html
+$ ls -al scratch
+total 0
+drwxr-xr-x  3 papawolf8572  papawolf8572   96 Jul 29 14:25 .
+drwxr-xr-x  5 papawolf8572  papawolf8572  160 Jul 29 14:24 ..
+-rw-r--r--  1 papawolf8572  papawolf8572    0 Jul 29 14:25 draft.html
+
+$ echo "<h1>I'm html file</h1>" > scratch/draft.html
+$ cat scratch/draft.html
+<h1>I'm html file</h1>
+
+$ cp scratch/draft.html site/index-copy.html
+$ ls -al site
+total 8
+drwxr-xr-x  3 papawolf8572  papawolf8572   96 Jul 29 14:27 .
+drwxr-xr-x  5 papawolf8572  papawolf8572  160 Jul 29 14:27 ..
+-rw-r--r--  1 papawolf8572  papawolf8572   23 Jul 29 14:27 index-copy.html
+
+$ mv site/index-copy.html site/index.html
+$ ls -al site
+total 8
+drwxr-xr-x  3 papawolf8572  papawolf8572   96 Jul 29 14:27 .
+drwxr-xr-x  5 papawolf8572  papawolf8572  160 Jul 29 14:27 ..
+-rw-r--r--  1 papawolf8572  papawolf8572   23 Jul 29 14:27 index.html
+
+$ cat site/index.html
+<h1>I'm html file</h1>
+
+$ rm scratch/draft.html
+$ ls -al scratch
+total 0
+drwxr-xr-x  2 papawolf8572  papawolf8572   64 Jul 29 14:28 .
+drwxr-xr-x  5 papawolf8572  papawolf8572  160 Jul 29 14:28 ..
+
+$ rmdir scratch
+$ ls -al
+total 16
+drwxr-xr-x  4 papawolf8572  papawolf8572   128 Jul 29 14:28 .
+drwxr-xr-x  5 papawolf8572  papawolf8572   160 Jul 29 14:24 ..
+-rw-r--r--  1 papawolf8572  papawolf8572  5232 Jul 29 14:24 README.md
+drwxr-xr-x  3 papawolf8572  papawolf8572    96 Jul 29 14:27 site
+```
