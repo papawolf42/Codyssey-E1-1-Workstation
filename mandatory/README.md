@@ -42,19 +42,19 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [x] Docker CLI와 데몬이 정상적으로 연결되는지 확인
 
 - [ ] Docker 기본 운영
-    - [ ] 이미지 다운로드 및 목록 확인 — `docker pull`, `docker images`
-    - [ ] 컨테이너 실행·중지·목록 확인 — `docker run`, `docker stop`, `docker ps`, `docker ps -a`
+    - [x] 이미지 다운로드 및 목록 확인 — `docker pull`, `docker images`
+    - [x] 컨테이너 실행·중지·목록 확인 — `docker run`, `docker stop`, `docker ps`, `docker ps -a`
     - [ ] 컨테이너 로그 확인 — `docker logs <container>`
-    - [ ] 컨테이너 리소스 확인 — `docker stats --no-stream <container>`
+    - [x] 컨테이너 리소스 확인 — `docker stats --no-stream <container>`
     - [ ] 기본 운영 명령과 핵심 출력 결과 기록
 
-- [ ] hello-world 실행
-    - [ ] 공식 테스트 이미지 실행 — `docker run hello-world`
-    - [ ] 실행 성공 결과 기록
-    - [ ] `ubuntu` 컨테이너 실행 및 내부 진입 — `docker run -it ubuntu bash`
-    - [ ] 컨테이너 내부에서 간단한 명령 실행 — `ls`, `echo`
-    - [ ] `attach`와 `exec`의 차이 관찰 — `docker attach`, `docker exec`
-    - [ ] 컨테이너 종료·유지 방식의 차이 정리
+- [x] hello-world 실행
+    - [x] 공식 테스트 이미지 실행 — `docker run hello-world`
+    - [x] 실행 성공 결과 기록
+    - [x] `ubuntu` 컨테이너 실행 및 내부 진입 — `docker run -it ubuntu bash`
+    - [x] 컨테이너 내부에서 간단한 명령 실행 — `ls`, `echo`
+    - [x] `attach`와 `exec`의 차이 관찰 — `docker attach`, `docker exec`
+    - [x] 컨테이너 종료·유지 방식의 차이 정리
 
 - [ ] Dockerfile 빌드/실행
     - [ ] 커스텀 이미지 제작 방식 선택: 웹 서버 베이스 또는 Linux 베이스
@@ -203,3 +203,144 @@ Server:
 ```
 
 `docker --version`으로 Docker CLI 설치와 버전을 확인했다. `docker info`에서 Client와 Server 정보가 모두 출력되고 Context와 운영체제가 OrbStack으로 표시되므로 Docker CLI가 Docker 엔진과 정상적으로 통신하고 있다.
+
+### 4-3) hello-world 실행
+
+```console
+$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pull complete
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+```
+
+로컬에 이미지가 없어 Docker Hub에서 `hello-world:latest` 이미지를 내려받은 뒤 컨테이너를 생성하고 실행했다.
+
+```console
+$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+hello-world   latest    e2ac70e7319a   4 months ago   10.1kB
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    CREATED         STATUS                     PORTS     NAMES
+b104a6069615   hello-world   "/hello"   3 minutes ago   Exited (0) 3 minutes ago             xenodochial_leakey
+```
+
+`docker ps`에는 실행 중인 컨테이너만 표시되므로 결과가 비어 있다. `docker ps -a`에는 종료된 컨테이너도 표시되며, `Exited (0)`은 `hello-world` 컨테이너가 오류 없이 작업을 마치고 종료됐다는 뜻이다.
+
+### 4-4) Ubuntu 컨테이너 실행
+
+Ubuntu 이미지를 내려받고 로컬 이미지 목록에서 확인했다.
+
+```console
+$ docker pull ubuntu
+Digest: sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb
+Status: Downloaded newer image for ubuntu:latest
+
+$ docker images
+REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
+ubuntu        latest    de7345b16e94   2 weeks ago    100MB
+hello-world   latest    e2ac70e7319a   4 months ago   10.1kB
+```
+
+`-it` 옵션으로 Ubuntu 컨테이너의 `bash`에 직접 진입해 위치, 파일 목록, 출력과 운영체제를 확인했다.
+
+```console
+$ docker run -it --name ubuntu-container ubuntu bash
+root@7f7dcfb4839e:/# pwd
+/
+
+root@7f7dcfb4839e:/# ls -al
+total 16
+-rwxr-xr-x   1 root root   0 Jul 29 06:34 .dockerenv
+lrwxrwxrwx   1 root root   7 Apr 20 08:46 bin -> usr/bin
+drwxr-xr-x   1 root root  56 Jul 29 06:34 etc
+
+root@7f7dcfb4839e:/# echo "Hello"
+Hello
+
+root@7f7dcfb4839e:/# cat /etc/os-release
+PRETTY_NAME="Ubuntu 26.04 LTS"
+VERSION_CODENAME=resolute
+
+root@7f7dcfb4839e:/# exit
+exit
+
+$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    STATUS
+7f7dcfb4839e   ubuntu        "bash"     Exited (0)
+b104a6069615   hello-world   "/hello"   Exited (0)
+```
+
+이 실행에서는 `bash`가 컨테이너의 메인 프로세스다. `exit`로 `bash`를 종료하자 컨테이너도 `Exited (0)` 상태가 됐다.
+
+백그라운드 컨테이너를 만들고 `docker exec`로 별도 명령을 실행했다.
+
+```console
+$ docker run -dit --name ubuntu-container-2 ubuntu bash
+f6d85944f55af2f92bd9cc0e5836f95632620f39b69dfd3058a18c52c616fb06
+
+$ docker exec ubuntu-container-2 pwd
+/
+
+$ docker exec ubuntu-container-2 sh -c "echo 'Hello'"
+Hello
+
+$ docker stats --no-stream ubuntu-container-2
+CONTAINER ID   NAME                 CPU %   MEM USAGE / LIMIT     MEM %
+f6d85944f55a   ubuntu-container-2   0.00%   1.426MiB / 15.67GiB   0.01%
+
+$ docker ps
+CONTAINER ID   IMAGE    COMMAND   STATUS    NAMES
+f6d85944f55a   ubuntu   "bash"    Up        ubuntu-container-2
+```
+
+`docker attach`는 실행 중인 컨테이너의 메인 프로세스에 연결한다. 연결을 끊은 뒤에도 컨테이너가 실행 중인지 확인했다.
+
+```console
+$ docker attach ubuntu-container-2
+root@f6d85944f55a:/# echo "Hello"
+Hello
+
+$ docker ps
+CONTAINER ID   IMAGE    COMMAND   STATUS         NAMES
+f6d85944f55a   ubuntu   "bash"    Up 3 minutes   ubuntu-container-2
+```
+
+`docker exec -it`는 실행 중인 컨테이너 안에 새로운 `bash` 프로세스를 만든다. 이 셸에서 `exit`해도 원래 메인 프로세스는 종료되지 않아 컨테이너가 계속 실행됐다.
+
+```console
+$ docker exec -it ubuntu-container-2 bash
+root@f6d85944f55a:/# echo "Interactive docker exec"
+Interactive docker exec
+root@f6d85944f55a:/# exit
+exit
+
+$ docker ps
+CONTAINER ID   IMAGE    COMMAND   STATUS         NAMES
+f6d85944f55a   ubuntu   "bash"    Up 4 minutes   ubuntu-container-2
+```
+
+마지막으로 컨테이너를 중지하고 실행 중인 목록과 전체 목록을 비교했다.
+
+```console
+$ docker stop ubuntu-container-2
+ubuntu-container-2
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS   PORTS   NAMES
+
+$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    STATUS         NAMES
+f6d85944f55a   ubuntu        "bash"     Exited (137)   ubuntu-container-2
+7f7dcfb4839e   ubuntu        "bash"     Exited (0)     ubuntu-container
+b104a6069615   hello-world   "/hello"   Exited (0)     xenodochial_leakey
+```
+
+`docker stop`은 메인 프로세스에 정상 종료 신호를 보내고 기다린 뒤, 종료되지 않으면 강제 종료한다. `ubuntu-container-2`의 `Exited (137)`은 `bash` 프로세스가 강제 종료 신호로 끝났음을 나타낸다.
