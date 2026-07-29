@@ -29,11 +29,11 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [x] 빈 파일 생성 — `touch <empty_file>`
     - [x] 명령어와 출력 결과 기록
 
-- [ ] 권한 변경 실습
-    - [ ] 파일 1개의 권한 확인 및 변경 — `ls -l`, `chmod`
-    - [ ] 디렉토리 1개의 권한 확인 및 변경 — `ls -ld`, `chmod`
-    - [ ] 변경 전·후 비교 기록
-    - [ ] `r/w/x`, `755`, `644`의 의미 설명
+- [x] 권한 변경 실습
+    - [x] 파일 1개의 권한 확인 및 변경 — `ls -l`, `chmod`
+    - [x] 디렉토리 1개의 권한 확인 및 변경 — `ls -ld`, `chmod`
+    - [x] 변경 전·후 비교 기록
+    - [x] `r/w/x`, `755`, `644`의 의미 설명
 
 - [x] Docker 설치/점검
     - [x] Docker 실행 환경 확인 — 서울 환경: OrbStack
@@ -172,7 +172,68 @@ drwxr-xr-x  5 papawolf8572  papawolf8572   160 Jul 29 14:24 ..
 drwxr-xr-x  3 papawolf8572  papawolf8572    96 Jul 29 14:27 site
 ```
 
-### 4-2) Docker 설치 및 점검
+### 4-2) 권한 변경 실습
+
+```console
+$ docker exec -it first-container /bin/sh
+/ # cd /usr/share/nginx/html
+/usr/share/nginx/html # pwd
+/usr/share/nginx/html
+/usr/share/nginx/html # ls -ld .
+drwxr-xr-x    1 root     root          4096 Jul 29 22:14 .
+/usr/share/nginx/html # ls -l index.html
+-rw-r--r--    1 root     root            23 Jul 29 05:37 index.html
+/usr/share/nginx/html # chmod 600 index.html
+/usr/share/nginx/html # ls -l index.html
+-rw-------    1 root     root            23 Jul 29 05:37 index.html
+```
+
+```console
+$ curl -sS -i http://localhost:8080/ | sed -n '1p'
+HTTP/1.1 403 Forbidden
+```
+
+```console
+/usr/share/nginx/html # chmod 644 index.html
+/usr/share/nginx/html # ls -l index.html
+-rw-r--r--    1 root     root            23 Jul 29 05:37 index.html
+```
+
+```console
+$ curl -sS -i http://localhost:8080/ | sed -n '1p'
+HTTP/1.1 200 OK
+```
+
+```console
+/usr/share/nginx/html # chmod 644 .
+/usr/share/nginx/html # ls -ld .
+drw-r--r--    1 root     root          4096 Jul 29 22:14 .
+```
+
+```console
+$ curl -sS -i http://localhost:8080/ | sed -n '1p'
+HTTP/1.1 403 Forbidden
+```
+
+```console
+/usr/share/nginx/html # chmod 755 .
+/usr/share/nginx/html # ls -ld .
+drwxr-xr-x    1 root     root          4096 Jul 29 22:14 .
+/usr/share/nginx/html # exit
+```
+
+```console
+$ curl -sS -i http://localhost:8080/ | sed -n '1p'
+HTTP/1.1 200 OK
+```
+
+권한 문자열의 첫 글자 `d`는 디렉토리, `-`는 일반 파일을 뜻한다. `r`은 읽기, `w`는 쓰기, `x`는 파일 실행 또는 디렉토리 진입 권한이다.
+
+파일은 `644(rw-r--r--)`에서 소유자만 읽고 쓸 수 있는 `600(rw-------)`으로 변경한 뒤 `644`로 복구했다. 디렉토리는 `755(rwxr-xr-x)`에서 실행 권한이 없는 `644(rw-r--r--)`로 변경한 뒤 `755`로 복구했다.
+
+권한 변경 후 `curl`로 Nginx 응답을 확인했다. `index.html`을 `600`으로 변경하자 Nginx가 파일을 읽지 못해 `403 Forbidden`을 반환했고, `644`로 복구하자 다시 `200 OK`를 반환했다. 파일을 `644`로 유지한 상태에서 디렉토리를 `644`로 변경했을 때도 실행 권한(`x`)이 없어 `403 Forbidden`이 발생했으며, 디렉토리를 `755`로 복구하자 다시 `200 OK`가 반환됐다.
+
+### 4-3) Docker 설치 및 점검
 
 `docker info`는 출력 중 Docker 엔진 동작 확인에 필요한 부분만 발췌했다.
 
@@ -204,7 +265,7 @@ Server:
 
 `docker --version`으로 Docker CLI 설치와 버전을 확인했다. `docker info`에서 Client와 Server 정보가 모두 출력되고 Context와 운영체제가 OrbStack으로 표시되므로 Docker CLI가 Docker 엔진과 정상적으로 통신하고 있다.
 
-### 4-3) hello-world 실행
+### 4-4) hello-world 실행
 
 ```console
 $ docker run hello-world
@@ -234,7 +295,7 @@ b104a6069615   hello-world   "/hello"   3 minutes ago   Exited (0) 3 minutes ago
 
 `docker ps`에는 실행 중인 컨테이너만 표시되므로 결과가 비어 있다. `docker ps -a`에는 종료된 컨테이너도 표시되며, `Exited (0)`은 `hello-world` 컨테이너가 오류 없이 작업을 마치고 종료됐다는 뜻이다.
 
-### 4-4) Ubuntu 컨테이너 실행
+### 4-5) Ubuntu 컨테이너 실행
 
 Ubuntu 이미지를 내려받고 로컬 이미지 목록에서 확인했다.
 
@@ -345,7 +406,7 @@ b104a6069615   hello-world   "/hello"   Exited (0)     xenodochial_leakey
 
 `docker stop`은 메인 프로세스에 정상 종료 신호를 보내고 기다린 뒤, 종료되지 않으면 강제 종료한다. `ubuntu-container-2`의 `Exited (137)`은 `bash` 프로세스가 강제 종료 신호로 끝났음을 나타낸다.
 
-### 4-5) Dockerfile 기반 커스텀 이미지 빌드
+### 4-6) Dockerfile 기반 커스텀 이미지 빌드
 
 웹 서버가 포함된 `nginx:alpine` 이미지를 베이스 이미지로 선택했다. Nginx를 별도로 설치하지 않고 비교적 작은 Alpine Linux 기반 이미지에서 정적 웹 페이지를 실행할 수 있기 때문이다.
 
@@ -371,7 +432,7 @@ $ docker build -t first-built-image .
 
 ![Docker 이미지 빌드 성공 화면](screenshots/02-docker-build.png)
 
-### 4-6) 커스텀 이미지 실행 및 포트 매핑
+### 4-7) 커스텀 이미지 실행 및 포트 매핑
 
 실행 과정에서 중복으로 입력한 `--name` 옵션을 하나로 정리해 다음과 같이 재현 가능한 명령으로 기록했다.
 
