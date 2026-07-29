@@ -35,11 +35,11 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [ ] 변경 전·후 비교 기록
     - [ ] `r/w/x`, `755`, `644`의 의미 설명
 
-- [ ] Docker 설치/점검
-    - [ ] Docker 실행 환경 확인 — 서울 환경: OrbStack
-    - [ ] Docker 버전 확인 — `docker --version`
-    - [ ] Docker 데몬 동작 여부 확인 — `docker info`
-    - [ ] Docker CLI와 데몬이 정상적으로 연결되는지 확인
+- [x] Docker 설치/점검
+    - [x] Docker 실행 환경 확인 — 서울 환경: OrbStack
+    - [x] Docker 버전 확인 — `docker --version`
+    - [x] Docker 데몬 동작 여부 확인 — `docker info`
+    - [x] Docker CLI와 데몬이 정상적으로 연결되는지 확인
 
 - [ ] Docker 기본 운영
     - [ ] 이미지 다운로드 및 목록 확인 — `docker pull`, `docker images`
@@ -171,3 +171,35 @@ drwxr-xr-x  5 papawolf8572  papawolf8572   160 Jul 29 14:24 ..
 -rw-r--r--  1 papawolf8572  papawolf8572  5232 Jul 29 14:24 README.md
 drwxr-xr-x  3 papawolf8572  papawolf8572    96 Jul 29 14:27 site
 ```
+
+### 4-2) Docker 설치 및 점검
+
+`docker info`는 출력 중 Docker 엔진 동작 확인에 필요한 부분만 발췌했다.
+
+```console
+$ docker --version
+Docker version 28.5.2, build ecc6942
+
+$ docker info
+Client:
+ Version:    28.5.2
+ Context:    orbstack
+ Debug Mode: false
+
+Server:
+ Containers: 0
+  Running: 0
+  Paused: 0
+  Stopped: 0
+ Images: 0
+ Server Version: 28.5.2
+ Storage Driver: overlay2
+ Kernel Version: 6.17.8-orbstack-00308-g8f9c941121b1
+ Operating System: OrbStack
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 6
+ Total Memory: 15.67GiB
+```
+
+`docker --version`으로 Docker CLI 설치와 버전을 확인했다. `docker info`에서 Client와 Server 정보가 모두 출력되고 Context와 운영체제가 OrbStack으로 표시되므로 Docker CLI가 Docker 엔진과 정상적으로 통신하고 있다.
