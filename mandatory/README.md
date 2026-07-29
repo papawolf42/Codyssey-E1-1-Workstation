@@ -57,12 +57,12 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [x] 컨테이너 종료·유지 방식의 차이 정리
 
 - [ ] Dockerfile 빌드/실행
-    - [ ] 커스텀 이미지 제작 방식 선택: 웹 서버 베이스 또는 Linux 베이스
-    - [ ] 베이스 이미지와 선택 이유 기록
-    - [ ] 웹 서버 소스코드 작성 — 예: `site/`, `app/`, `src/`
-    - [ ] Dockerfile 작성 — `Dockerfile`
-    - [ ] 적용한 커스텀 포인트와 목적 설명
-    - [ ] 이미지 빌드 — `docker build -t <image>:<tag> .`
+    - [x] 커스텀 이미지 제작 방식 선택: 웹 서버 베이스 또는 Linux 베이스
+    - [x] 베이스 이미지와 선택 이유 기록
+    - [x] 웹 서버 소스코드 작성 — 예: `site/`, `app/`, `src/`
+    - [x] Dockerfile 작성 — `Dockerfile`
+    - [x] 적용한 커스텀 포인트와 목적 설명
+    - [x] 이미지 빌드 — `docker build -t <image>:<tag> .`
     - [ ] 커스텀 이미지 실행 — `docker run`
     - [ ] 빌드·실행 명령과 핵심 결과 기록
 
@@ -344,3 +344,39 @@ b104a6069615   hello-world   "/hello"   Exited (0)     xenodochial_leakey
 ```
 
 `docker stop`은 메인 프로세스에 정상 종료 신호를 보내고 기다린 뒤, 종료되지 않으면 강제 종료한다. `ubuntu-container-2`의 `Exited (137)`은 `bash` 프로세스가 강제 종료 신호로 끝났음을 나타낸다.
+
+### 4-5) Dockerfile 기반 커스텀 이미지 빌드
+
+웹 서버가 포함된 `nginx:alpine` 이미지를 베이스 이미지로 선택했다. Nginx를 별도로 설치하지 않고 비교적 작은 Alpine Linux 기반 이미지에서 정적 웹 페이지를 실행할 수 있기 때문이다.
+
+```dockerfile
+FROM nginx:alpine
+
+COPY site/index.html /usr/share/nginx/html/index.html
+
+EXPOSE 80
+```
+
+- `FROM`: 커스텀 이미지의 기반으로 `nginx:alpine`을 사용한다.
+- `COPY`: 직접 만든 `site/index.html`을 Nginx의 기본 웹 문서 경로로 복사한다.
+- `EXPOSE`: 컨테이너 내부의 Nginx가 80번 포트를 사용한다는 것을 명시한다.
+
+커스텀 포인트는 Nginx 기본 페이지를 직접 만든 `site/index.html`로 교체한 것이다. 이를 통해 별도의 Nginx 설정 없이 컨테이너를 실행하면 프로젝트에서 작성한 웹 페이지가 기본 화면으로 제공되도록 했다.
+
+```console
+$ docker build -t first-built-image .
+[+] Building 2.1s (7/7) FINISHED
+ => [internal] load build definition from Dockerfile
+ => [internal] load metadata for docker.io/library/nginx:alpine
+ => [1/2] FROM docker.io/library/nginx:alpine
+ => CACHED [2/2] COPY site/index.html /usr/share/nginx/html/index.html
+ => exporting to image
+ => => writing image sha256:0123d05003ae3a9cd49acf57b3c10143e9cb62a7ecf0be4398d8828af9a3c458
+ => => naming to docker.io/library/first-built-image
+
+$ docker images first-built-image
+REPOSITORY          TAG       IMAGE ID       CREATED       SIZE
+first-built-image   latest    0123d05003ae   5 hours ago   62.4MB
+```
+
+`7/7 FINISHED`와 이미지 내보내기 결과를 통해 빌드 성공을 확인했고, 이미지 목록에서 `first-built-image:latest`가 생성된 것을 확인했다. 이 단계에서 만들어진 것은 컨테이너가 아니라 이미지다.
