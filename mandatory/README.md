@@ -365,21 +365,11 @@ EXPOSE 80
 
 ```console
 $ docker build -t first-built-image .
-[+] Building 2.1s (7/7) FINISHED
- => [internal] load build definition from Dockerfile
- => [internal] load metadata for docker.io/library/nginx:alpine
- => [1/2] FROM docker.io/library/nginx:alpine
- => CACHED [2/2] COPY site/index.html /usr/share/nginx/html/index.html
- => exporting to image
- => => writing image sha256:0123d05003ae3a9cd49acf57b3c10143e9cb62a7ecf0be4398d8828af9a3c458
- => => naming to docker.io/library/first-built-image
-
-$ docker images first-built-image
-REPOSITORY          TAG       IMAGE ID       CREATED       SIZE
-first-built-image   latest    0123d05003ae   5 hours ago   62.4MB
 ```
 
-`7/7 FINISHED`와 이미지 내보내기 결과를 통해 빌드 성공을 확인했고, 이미지 목록에서 `first-built-image:latest`가 생성된 것을 확인했다. 이 단계에서 만들어진 것은 컨테이너가 아니라 이미지다.
+`7/7 FINISHED`와 이미지 내보내기 결과를 통해 `first-built-image:latest`가 생성된 것을 확인했다. 이 단계에서 만들어진 것은 컨테이너가 아니라 이미지다.
+
+![Docker 이미지 빌드 성공 화면](screenshots/02-docker-build.png)
 
 ### 4-6) 커스텀 이미지 실행 및 포트 매핑
 
@@ -387,36 +377,21 @@ first-built-image   latest    0123d05003ae   5 hours ago   62.4MB
 
 ```console
 $ docker run -d --name first-container -p 8080:80 first-built-image
-94afb0213a76ee7cd640e6e7d5a6bdca3d040cfabf6fb6a11754aefa2439c868
-
 $ docker ps
-CONTAINER ID   IMAGE               COMMAND                  STATUS         PORTS                                     NAMES
-94afb0213a76   first-built-image   "/docker-entrypoint.…"   Up 3 seconds   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   first-container
 ```
 
 `-p 8080:80`은 호스트의 8080번 포트로 들어온 요청을 컨테이너 내부에서 Nginx가 사용하는 80번 포트에 전달한다. 컨테이너 내부의 서비스는 호스트와 격리돼 있으므로 포트 매핑이 없으면 호스트에서 해당 웹 서버에 직접 접속할 수 없다.
 
+![Docker 컨테이너 실행 및 포트 매핑 화면](screenshots/03-docker-run.png)
+
 ```console
 $ curl -i http://localhost:8080/
-HTTP/1.1 200 OK
-Server: nginx/1.31.3
-Content-Type: text/html
-Content-Length: 23
-
-<h1>I'm html file</h1>
 ```
 
 `200 OK`와 직접 만든 HTML이 출력돼 커스텀 이미지의 Nginx 웹 서버에 정상적으로 접속했음을 확인했다.
 
-`docker logs`는 Nginx 시작과 요청 확인에 필요한 부분만 발췌했다.
+![localhost 8080 포트 매핑 접속 화면](screenshots/01-port-mapping.png)
 
-```console
-$ docker logs first-container
-/docker-entrypoint.sh: Configuration complete; ready for start up
-2026/07/29 11:53:03 [notice] 1#1: nginx/1.31.3
-2026/07/29 11:53:03 [notice] 1#1: OS: Linux 6.17.8-orbstack-00308-g8f9c941121b1
-2026/07/29 11:53:03 [notice] 1#1: start worker processes
-192.168.215.1 - - [29/Jul/2026:11:54:37 +0000] "GET / HTTP/1.1" 200 23 "-" "curl/8.7.1" "-"
-```
+`docker logs first-container`로 Nginx가 정상적으로 시작됐으며 `curl`로 보낸 `GET /` 요청을 상태 코드 `200`으로 처리한 기록을 확인했다.
 
-Nginx가 정상적으로 시작됐으며 `curl`로 보낸 `GET /` 요청을 상태 코드 `200`, 응답 크기 23바이트로 처리한 기록을 확인했다.
+![curl 응답 및 Nginx 접근 로그 화면](screenshots/04-docker-logs.png)
