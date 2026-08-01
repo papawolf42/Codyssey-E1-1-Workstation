@@ -74,12 +74,12 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [x] 포트 매핑이 필요한 이유 설명
     - [x] 포트 매핑 접속 스크린샷 또는 `curl` 결과 기록
 
-- [ ] 바인드 마운트 반영
-    - [ ] 호스트 파일의 변경 전 내용 확인
-    - [ ] 바인드 마운트로 컨테이너 실행 — `docker run -v <host_path>:<container_path>`
-    - [ ] 호스트 파일 변경
-    - [ ] 컨테이너 또는 브라우저에서 변경 반영 확인
-    - [ ] 실행 명령과 호스트 변경 전·후 결과 기록
+- [x] 바인드 마운트 반영
+    - [x] 호스트 파일의 변경 전 내용 확인
+    - [x] 바인드 마운트로 컨테이너 실행 — `docker run -v <host_path>:<container_path>`
+    - [x] 호스트 파일 변경
+    - [x] 컨테이너 또는 브라우저에서 변경 반영 확인
+    - [x] 실행 명령과 호스트 변경 전·후 결과 기록
 
 - [ ] 볼륨 영속성
     - [ ] Docker 볼륨 생성 — `docker volume create <volume>`
@@ -456,3 +456,35 @@ $ curl -i http://localhost:8080/
 `docker logs first-container`로 Nginx가 정상적으로 시작됐으며 `curl`로 보낸 `GET /` 요청을 상태 코드 `200`으로 처리한 기록을 확인했다.
 
 ![curl 응답 및 Nginx 접근 로그 화면](screenshots/04-docker-logs.png)
+
+### 4-8) 바인드 마운트 반영
+
+Dockerfile로 만든 기존 `first-built-image`를 다시 사용하되, 호스트의 `site` 디렉터리를 컨테이너의 Nginx 웹 문서 경로에 바인드 마운트했다. 기존 `first-container`는 이미지 빌드 당시 복사된 파일을 사용하며 호스트 8080번 포트를 유지하고, 비교용 `bind_container`는 호스트 8081번 포트를 사용한다.
+
+변경 전 호스트 파일의 내용은 다음과 같았다.
+
+```console
+$ cat site/index.html
+<h1>I'm html file</h1>
+```
+
+```console
+$ docker run -d -it --name bind_container -v "$(pwd)/site:/usr/share/nginx/html" -p 8081:80 first-built-image
+d387d2da7524c97f2f38159376edc968d71d2340da9c2490c9aa0cfd9e86c2f8
+```
+
+`-v`로 호스트의 `site` 디렉터리와 컨테이너의 `/usr/share/nginx/html` 디렉터리를 연결했다.
+
+호스트 파일을 변경한 뒤 기존 컨테이너와 바인드 마운트 컨테이너의 응답을 비교했다.
+
+```console
+$ echo "<h1>I'm Changed html file</h1>" > site/index.html
+
+$ curl http://localhost:8080
+<h1>I'm html file</h1>
+
+$ curl http://localhost:8081
+<h1>I'm Changed html file</h1>
+```
+
+8080번의 `first-container`는 이미지 빌드 당시 `COPY`된 기존 파일을 계속 제공했다. 반면 8081번의 `bind_container`는 이미지 재빌드나 컨테이너 재생성 없이 호스트에서 변경한 내용을 즉시 제공했다. 이를 통해 Dockerfile의 `COPY`는 빌드 시점의 파일을 이미지에 저장하고, 바인드 마운트는 실행 중인 컨테이너에 호스트 파일을 직접 연결한다는 차이를 확인했다.
