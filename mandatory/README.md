@@ -81,15 +81,15 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [x] 컨테이너 또는 브라우저에서 변경 반영 확인
     - [x] 실행 명령과 호스트 변경 전·후 결과 기록
 
-- [ ] 볼륨 영속성
-    - [ ] Docker 볼륨 생성 — `docker volume create <volume>`
-    - [ ] 볼륨을 컨테이너에 연결 — `docker run -v <volume>:<container_path>`
-    - [ ] 볼륨에 데이터 기록 및 확인 — `docker exec`
-    - [ ] 컨테이너 삭제 — `docker rm`
-    - [ ] 같은 볼륨으로 새 컨테이너 실행
-    - [ ] 새 컨테이너에서 기존 데이터 확인
-    - [ ] 컨테이너 삭제 전·후 비교 기록
-    - [ ] Docker 볼륨과 영속 데이터 설명
+- [x] 볼륨 영속성
+    - [x] Docker 볼륨 생성 — `docker volume create <volume>`
+    - [x] 볼륨을 컨테이너에 연결 — `docker run -v <volume>:<container_path>`
+    - [x] 볼륨에 데이터 기록 및 확인 — `docker exec`
+    - [x] 컨테이너 삭제 — `docker rm`
+    - [x] 같은 볼륨으로 새 컨테이너 실행
+    - [x] 새 컨테이너에서 기존 데이터 확인
+    - [x] 컨테이너 삭제 전·후 비교 기록
+    - [x] Docker 볼륨과 영속 데이터 설명
 
 - [ ] Git 설정 + VSCode GitHub 연동
     - [x] Git 사용자 정보 설정 — `git config user.name`, `git config user.email`
@@ -488,3 +488,49 @@ $ curl http://localhost:8081
 ```
 
 8080번의 `first-container`는 이미지 빌드 당시 `COPY`된 기존 파일을 계속 제공했다. 반면 8081번의 `bind_container`는 이미지 재빌드나 컨테이너 재생성 없이 호스트에서 변경한 내용을 즉시 제공했다. 이를 통해 Dockerfile의 `COPY`는 빌드 시점의 파일을 이미지에 저장하고, 바인드 마운트는 실행 중인 컨테이너에 호스트 파일을 직접 연결한다는 차이를 확인했다.
+
+### 4-9) Docker 볼륨 영속성
+
+기존에 만든 `first-built-image`를 사용해 컨테이너를 삭제한 뒤에도 Docker 볼륨의 데이터가 유지되는지 확인했다. 먼저 `docker-volume`이라는 이름의 볼륨을 생성했다.
+
+```console
+$ docker volume create docker-volume
+docker-volume
+
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     docker-volume
+```
+
+볼륨을 Nginx 웹 문서 경로에 연결하고, 기존 포트와 겹치지 않도록 호스트 8082번 포트를 사용해 첫 번째 컨테이너를 실행했다.
+
+```console
+$ docker run -d -v docker-volume:/usr/share/nginx/html -p 8082:80 --name volume_container first-built-image
+517b639e1c4b5c503e1637fdd80cc18462257a1b87ffd66a9a71384cd3012471
+```
+
+컨테이너에서 볼륨에 연결된 `index.html`을 변경하고 웹 서버의 응답을 확인했다.
+
+```console
+$ docker exec volume_container sh -c 'echo "<h1>Persistent volume data</h1>" > /usr/share/nginx/html/index.html'
+
+$ curl http://localhost:8082
+<h1>Persistent volume data</h1>
+```
+
+첫 번째 컨테이너를 삭제한 뒤 동일한 볼륨을 연결해 두 번째 컨테이너를 실행했다.
+
+```console
+$ docker rm -f volume_container
+volume_container
+
+$ docker run -d -v docker-volume:/usr/share/nginx/html -p 8082:80 --name volume_container2 first-built-image
+8fa57356d451235a3cb1356101c4996b795ada81bd2350c0c267bac41aa26b0b
+```
+
+```console
+$ curl http://localhost:8082
+<h1>Persistent volume data</h1>
+```
+
+첫 번째 컨테이너를 삭제했는데도 두 번째 컨테이너에서 변경된 HTML이 그대로 출력됐다. Docker 볼륨은 컨테이너의 쓰기 계층과 분리되어 Docker가 관리하므로 컨테이너를 삭제해도 볼륨을 직접 삭제하지 않는 한 저장된 데이터가 유지된다.
