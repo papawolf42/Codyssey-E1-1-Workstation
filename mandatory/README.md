@@ -598,3 +598,71 @@ To https://github.com/papawolf42/Codyssey-E1-1-Workstation
 VS Code의 Source Control에서 현재 저장소와 커밋 이력, `main` 브랜치를 확인했다. Accounts 메뉴에는 GitHub 계정 `papawolf42`가 로그인된 상태로 표시됐다.
 
 ![VS Code Source Control 및 GitHub 연동 상태](screenshots/06-vscode-github.png)
+
+## 5) 트러블슈팅
+
+### 5-1) `chmod` 변경 후 HTML이 표시되지 않음
+
+#### 문제
+
+기존 실습 컨테이너를 정리한 뒤, 호스트의 `site` 디렉터리를 바인드 마운트하고 호스트 8082번 포트로 컨테이너를 실행했다. 권한을 실습하기 위해 `site/index.html`의 권한을 변경하자 Nginx 페이지가 표시되지 않았다.
+
+```console
+$ docker run -d --name bind_container -v "$(pwd)/site:/usr/share/nginx/html" -p 8082:80 first-built-image
+
+$ chmod 111 site/index.html
+$ curl localhost:8082
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+</body>
+</html>
+```
+
+#### 원인
+
+`111`에는 실행 권한 `x`만 있고 읽기 권한 `r`이 없다. 바인드 마운트는 호스트 파일을 컨테이너에 직접 연결하므로 Nginx도 읽기 권한이 없는 HTML 파일을 표시할 수 없었다.
+
+#### 해결
+
+`index.html`을 일반적인 파일 권한인 `644`로 복구하자 페이지가 다시 표시됐다.
+
+```console
+$ chmod 644 site/index.html
+$ curl localhost:8082
+<h1>I'm Changed html file</h1>
+```
+
+### 5-2) Ubuntu 컨테이너가 실행 직후 종료됨
+
+#### 문제
+
+Ubuntu 컨테이너를 실행했지만 `docker ps -a`에서 곧바로 `Exited (0)` 상태가 됐다.
+
+```console
+$ docker run -d --name ubuntu_container ubuntu
+$ docker ps -a
+NAMES              IMAGE    COMMAND       STATUS
+ubuntu_container   ubuntu   "/bin/bash"   Exited (0)
+```
+
+#### 원인
+
+컨테이너는 하나의 격리된 컴퓨터처럼 보이지만, 실제로는 컨테이너 안의 메인 명령이 실행되는 동안만 유지된다. Ubuntu 이미지의 기본 명령은 `/bin/bash`인데, `-it` 없이 실행하면 Bash가 입력을 기다릴 수 없어 바로 끝난다. 메인 명령인 Bash가 끝나면서 컨테이너도 정상 종료되어 `Exited (0)`으로 표시됐다.
+
+#### 해결
+
+종료된 컨테이너를 삭제하고 `-it` 옵션을 추가해 다시 실행했다.
+
+```console
+$ docker rm ubuntu_container
+ubuntu_container
+
+$ docker run -dit --name ubuntu_container ubuntu
+$ docker ps
+NAMES              IMAGE    COMMAND       STATUS
+ubuntu_container   ubuntu   "/bin/bash"   Up
+```
+
+`-i`는 표준 입력을 계속 열어 두고, `-t`는 가상 터미널을 만든다. 따라서 Ubuntu의 Bash를 계속 실행해 내부 명령을 실습하려면 `-it`를 사용한다. Nginx처럼 자체적으로 계속 실행되는 서버 프로그램은 메인 명령이 종료되지 않으므로 보통 `-it`가 없어도 실행 상태를 유지한다.
