@@ -93,13 +93,14 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
 
 - [ ] Git 설정 + VSCode GitHub 연동
     - [x] Git 사용자 정보 설정 — `git config user.name`, `git config user.email`
-    - [ ] 기본 브랜치 설정 — `git branch -M main`
-    - [ ] Git 설정 결과 기록 — `git config --list`
+    - [x] 기본 브랜치 설정 — `git branch -m main`, `git config --global init.defaultBranch main`
+    - [x] 필요한 Git 설정 결과 기록
     - [ ] VSCode에서 GitHub 로그인
     - [ ] VSCode와 GitHub 저장소 연동
-    - [ ] GitHub 저장소 링크와 접근 가능 여부 확인
-    - [ ] Git과 GitHub의 역할 차이 설명
-    - [ ] ID·비밀번호·토큰 등 민감정보 미포함 확인
+    - [x] GitHub CLI 로그인 및 HTTPS 원격 저장소 등록
+    - [ ] 실제 `git push` 성공 확인
+    - [x] Git과 GitHub의 역할 차이 설명
+    - [x] ID·비밀번호·토큰 등 민감정보 미포함 확인
 
 ## 4) 수행 기록
 
@@ -534,3 +535,35 @@ $ curl http://localhost:8082
 ```
 
 첫 번째 컨테이너를 삭제했는데도 두 번째 컨테이너에서 변경된 HTML이 그대로 출력됐다. Docker 볼륨은 컨테이너의 쓰기 계층과 분리되어 Docker가 관리하므로 컨테이너를 삭제해도 볼륨을 직접 삭제하지 않는 한 저장된 데이터가 유지된다.
+
+### 4-10) Git 설정 및 GitHub HTTPS 연동
+
+Git은 로컬에서 파일의 변경 이력, 커밋, 브랜치를 관리하는 버전 관리 도구다. GitHub는 Git 저장소를 원격에 보관하고 다른 환경과 공유하거나 협업할 수 있게 해주는 서비스다. 따라서 Git 사용자 설정만으로 GitHub 연동이 완료되는 것은 아니며, 원격 저장소 등록과 계정 인증, 실제 통신 확인이 각각 필요하다.
+
+새 Git 저장소의 기본 브랜치를 `main`으로 설정하고 현재 연습 저장소의 브랜치도 `main`으로 변경했다. 커밋 작성자 정보는 다음과 같이 사용한다.
+
+```text
+user.name: gunkim
+user.email: 68710498+papawolf42@users.noreply.github.com
+init.defaultBranch: main
+```
+
+GitHub CLI(`gh`)의 웹 인증을 통해 GitHub 계정에 로그인하고 Git 작업 프로토콜을 HTTPS로 설정했다. 인증정보는 macOS Keychain에 저장됐다.
+
+```console
+$ git remote -v
+origin  https://github.com/papawolf42/Codyssey-E1-1-Workstation.git (fetch)
+origin  https://github.com/papawolf42/Codyssey-E1-1-Workstation.git (push)
+
+$ gh auth status
+github.com
+  ✓ Logged in to github.com account papawolf42 (keyring)
+  - Active account: true
+  - Git operations protocol: https
+  - Token: gho_************************************
+  - Token scopes: 'gist', 'read:org', 'repo', 'workflow'
+```
+
+`git remote -v`는 로컬 저장소에 GitHub 원격 주소가 fetch와 push 대상으로 등록됐음을 보여준다. `gh auth status`는 `papawolf42` 계정 인증과 HTTPS 프로토콜 설정을 보여준다. 토큰 값은 출력에서 마스킹되어 있으며 실제 토큰, 비밀번호, 인증 코드는 문서에 포함하지 않았다.
+
+![GitHub CLI 로그인 및 HTTPS 원격 저장소 등록](screenshots/05-github-https-integration.jpg)
