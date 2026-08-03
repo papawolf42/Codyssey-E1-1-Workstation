@@ -91,14 +91,14 @@ Dockerfile로 간단한 웹 서버를 구성한 뒤 포트 매핑으로 접속�
     - [x] 컨테이너 삭제 전·후 비교 기록
     - [x] Docker 볼륨과 영속 데이터 설명
 
-- [ ] Git 설정 + VSCode GitHub 연동
+- [x] Git 설정 + VSCode GitHub 연동
     - [x] Git 사용자 정보 설정 — `git config user.name`, `git config user.email`
     - [x] 기본 브랜치 설정 — `git branch -m main`, `git config --global init.defaultBranch main`
     - [x] 필요한 Git 설정 결과 기록
-    - [ ] VSCode에서 GitHub 로그인
-    - [ ] VSCode와 GitHub 저장소 연동
+    - [x] VSCode에서 GitHub 로그인
+    - [x] VSCode와 GitHub 저장소 연동
     - [x] GitHub CLI 로그인 및 HTTPS 원격 저장소 등록
-    - [ ] 실제 `git push` 성공 확인
+    - [x] 실제 `git push` 성공 확인
     - [x] Git과 GitHub의 역할 차이 설명
     - [x] ID·비밀번호·토큰 등 민감정보 미포함 확인
 
@@ -582,3 +582,19 @@ github.com
 `git remote -v`는 로컬 저장소에 GitHub 원격 주소가 fetch와 push 대상으로 등록됐음을 보여준다. `gh auth status`는 `papawolf42` 계정 인증과 HTTPS 프로토콜 설정을 보여준다. 토큰 값은 출력에서 마스킹되어 있으며 실제 토큰, 비밀번호, 인증 코드는 문서에 포함하지 않았다.
 
 ![GitHub CLI 로그인 및 HTTPS 원격 저장소 등록](screenshots/05-github-https-integration.jpg)
+
+README와 GitHub 연동 증거를 커밋한 뒤 원격 `main` 브랜치로 push하여 실제 통신 성공을 확인했다.
+
+```console
+$ git commit -m "Github HTTPS 연동 문서화"
+[main 187ee19] Github HTTPS 연동 문서화
+ 2 files changed, 38 insertions(+), 5 deletions(-)
+
+$ git push origin main
+To https://github.com/papawolf42/Codyssey-E1-1-Workstation
+   629cfaa..187ee19  main -> main
+```
+
+VS Code의 Source Control에서 현재 저장소와 커밋 이력, `main` 브랜치를 확인했다. Accounts 메뉴에는 GitHub 계정 `papawolf42`가 로그인된 상태로 표시됐다.
+
+![VS Code Source Control 및 GitHub 연동 상태](screenshots/06-vscode-github.png)
