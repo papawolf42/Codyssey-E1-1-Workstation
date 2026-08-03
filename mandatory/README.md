@@ -548,6 +548,21 @@ user.email: 68710498+papawolf42@users.noreply.github.com
 init.defaultBranch: main
 ```
 
+학교 Mac을 사용할 수 없는 시점에 현재 작업 중인 Mac에서 `git config --list`를 다시 실행했다. 전체 출력에는 다른 저장소에도 적용되는 전역 설정이 함께 포함되므로, 개인정보와 과제에 불필요한 항목은 제외하고 현재 저장소에 적용되는 관련 결과만 발췌했다. 저장소의 로컬 사용자 설정은 같은 이름의 전역 설정보다 우선 적용된다.
+
+```console
+$ git config --list
+init.defaultbranch=main
+remote.origin.url=https://github.com/papawolf42/Codyssey-E1-1-Workstation
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.main.remote=origin
+branch.main.merge=refs/heads/main
+user.name=gunkim
+user.email=68710498+papawolf42@users.noreply.github.com
+```
+
+`init.defaultbranch=main`은 새 저장소의 기본 브랜치 이름을 뜻한다. `remote.origin.url`은 연결된 GitHub 저장소 주소이며, `branch.main.remote`와 `branch.main.merge`는 로컬 `main`이 원격 `origin/main`을 추적하도록 설정됐음을 보여준다.
+
 GitHub CLI(`gh`)의 웹 인증을 통해 GitHub 계정에 로그인하고 Git 작업 프로토콜을 HTTPS로 설정했다. 인증정보는 macOS Keychain에 저장됐다.
 
 ```console
