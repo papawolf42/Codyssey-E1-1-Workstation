@@ -5,7 +5,7 @@ from datetime import datetime
 
 import mysql.connector
 import redis
-from flask import Flask, make_response, request
+from flask import Flask, jsonify, redirect, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -41,10 +41,20 @@ def prepare_user():
     connection.close()
 
 
+def mode_info():
+    mode = os.getenv("APP_MODE", "normal")  # 환경변수가 없으면 normal을 사용한다.
+    if mode == "maintenance":
+        mode_message = "현재 서비스 점검 중입니다."
+    else:
+        mode_message = "서비스를 이용할 수 있습니다."
+    return mode, mode_message
+
+
 def login_page(message="로그인하세요."):
-    mode = os.getenv("APP_MODE", "study")
+    mode, mode_message = mode_info()
     return f"""
     <h1>My First Compose</h1>
+    <p>{mode_message}</p>
     <p>{message}</p>
     <form method="post">
       <input name="username" placeholder="아이디">
@@ -53,6 +63,40 @@ def login_page(message="로그인하세요."):
     </form>
     <p>mode={mode}</p>
     """
+
+
+def main_page(username, message):
+    mode, mode_message = mode_info()
+    return f"""
+    <h1>메인 화면</h1>
+    <p>{mode_message}</p>
+    <p>{username}님, 환영합니다.</p>
+    <p>{message}</p>
+    <p>로그아웃까지 남은 시간: <span id="remaining">10</span>초</p>
+    <p>페이지를 새로고침하면 세션이 10초 연장됩니다.</p>
+    <p>mode={mode}</p>
+    <script>
+      setInterval(async () => {{
+        const response = await fetch("/session-ttl");
+        const data = await response.json();
+        document.getElementById("remaining").textContent = data.remaining;
+        if (data.expired) location.reload();
+      }}, 1000);
+    </script>
+    """
+
+
+@app.get("/session-ttl")
+def session_ttl():
+    token = request.cookies.get("session_token")
+    if not token:
+        return jsonify(remaining=0, expired=True)
+
+    remaining = redis_client.ttl(f"session:{token}")
+    if remaining < 0:
+        return jsonify(remaining=0, expired=True)
+
+    return jsonify(remaining=remaining, expired=False)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -76,7 +120,7 @@ def index():
                 {"username": username, "login_time": datetime.now().isoformat()}
             )
             redis_client.set(f"session:{token}", session_data, ex=SESSION_TTL)
-            response = make_response(login_page("로그인 성공! 10초 세션이 시작됐습니다."))
+            response = redirect("/")  # POST 재전송을 막기 위해 GET 메인 화면으로 이동한다.
             response.set_cookie("session_token", token)
             return response
 
@@ -88,7 +132,7 @@ def index():
         if session_data:
             redis_client.expire(f"session:{token}", SESSION_TTL)
             username = json.loads(session_data)["username"]
-            return login_page(f"{username}님 로그인 중입니다. 세션이 10초 연장됐습니다.")
+            return main_page(username, "세션이 10초 연장됐습니다.")
         return login_page("세션이 만료되었습니다. 다시 로그인하세요.")
 
     return login_page()

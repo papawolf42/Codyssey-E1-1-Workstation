@@ -3,6 +3,20 @@ name: my-first-compose
 
 # services 아래에 실행할 컨테이너들을 정의한다.
 services:
+  # 브라우저에서 접속할 Flask 웹 앱 컨테이너
+  app:
+    # 현재 bonus 폴더의 Dockerfile로 이미지를 만든다.
+    build: .
+
+    # 호스트의 5001번 포트를 Flask의 5000번 포트에 연결한다.
+    ports:
+      - "5001:5000"
+
+    # MySQL과 Redis 컨테이너를 먼저 시작한다.
+    depends_on:
+      - mysql
+      - redis
+
   # MySQL 데이터베이스 컨테이너
   mysql:
     # Docker Hub의 MySQL 8.4 이미지를 사용한다.

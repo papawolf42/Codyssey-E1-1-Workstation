@@ -4,6 +4,9 @@ FROM python:3.12-slim
 # 컨테이너 안의 작업 폴더를 지정한다.
 WORKDIR /app
 
+# 앱의 기본 실행 모드를 환경변수로 지정한다.
+ENV APP_MODE=normal
+
 # 필요한 Python 패키지를 먼저 설치한다.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

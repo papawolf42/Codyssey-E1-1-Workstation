@@ -52,10 +52,10 @@
 
 ## 6) 보너스 4 — 환경변수
 
-- [ ] `APP_MODE=study`를 앱에 주입
-- [ ] 응답에서 `mode=study` 확인
-- [ ] `APP_MODE=exam`으로 변경
-- [ ] 코드 수정 없이 응답이 `mode=exam`으로 변경되는지 확인
+- [ ] Dockerfile에서 `APP_MODE=normal`을 앱에 주입
+- [ ] 응답에서 `mode=normal` 확인
+- [ ] Compose에서 `APP_MODE=maintenance`로 변경
+- [ ] 코드 수정 없이 점검 안내와 `mode=maintenance`가 표시되는지 확인
 
 ## 7) 최종 확인
 
