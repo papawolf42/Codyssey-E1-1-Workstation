@@ -10,9 +10,9 @@
 ## 1) 파일 준비
 
 - [x] `compose.yaml`
-- [ ] `app.py`
-- [ ] `Dockerfile`
-- [ ] `requirements.txt`
+- [x] `app.py`
+- [x] `Dockerfile`
+- [x] `requirements.txt`
 
 ## 2) 보너스 1 — 단일 서비스
 
