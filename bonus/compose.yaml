@@ -36,6 +36,7 @@ services:
     # 컨테이너가 삭제돼도 MySQL 데이터가 유지되도록 볼륨을 연결한다.
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   # 로그인 세션을 저장할 Redis 컨테이너
   redis:

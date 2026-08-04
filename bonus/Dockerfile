@@ -12,10 +12,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Flask 앱을 컨테이너에 복사한다.
-COPY app.py .
+COPY app.py seed.py ./
 
 # Flask 앱이 사용하는 컨테이너 내부 포트다.
 EXPOSE 5000
 
-# 컨테이너가 시작되면 Flask 앱을 실행한다.
-CMD ["python", "app.py"]
+# 테스트 계정을 준비한 뒤 Flask 앱을 실행한다.
+CMD ["sh", "-c", "python seed.py && python app.py"]

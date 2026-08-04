@@ -13,6 +13,8 @@
 - [x] `app.py`
 - [x] `Dockerfile`
 - [x] `requirements.txt`
+- [x] `init.sql`
+- [x] `seed.py`
 
 ## 2) 보너스 1 — 단일 서비스
 
@@ -101,7 +103,23 @@ mysql> SHOW TABLES;
 Empty set (0.01 sec)
 ```
 
-`app_user` 계정으로 `login_db` 접속에 성공했다. 현재는 데이터베이스만 생성됐으며 사용자 정보를 저장할 테이블은 아직 만들지 않은 상태다.
+`app_user` 계정으로 `login_db` 접속에 성공했다. 이 확인 당시에는 데이터베이스만 생성됐으며 사용자 정보를 저장할 테이블은 아직 만들지 않은 상태였다.
+
+### MySQL 초기 데이터와 테이블 조회
+
+`init.sql`은 MySQL Named Volume이 비어 있는 최초 실행 시 `users` 테이블을 만든다. `seed.py`는 `student`가 없을 때만 비밀번호 `1234`를 Werkzeug의 scrypt 해시로 변환해 저장한다.
+
+```sql
+SHOW TABLES;
+SELECT username FROM users;
+SELECT username, LEFT(password_hash, 20) AS hash_preview FROM users;
+```
+
+- `SHOW TABLES;`: 현재 데이터베이스의 테이블 목록 확인
+- `SELECT username FROM users;`: `users` 테이블의 아이디 조회
+- `LEFT(password_hash, 20)`: 긴 비밀번호 해시의 앞 20글자만 확인
+
+이미 만들어진 MySQL 볼륨에는 초기화 SQL이 다시 실행되지 않는다. 이번 실습 볼륨에는 기존 앱이 만든 동일한 `users` 테이블과 `student` 계정이 이미 저장되어 있어 데이터를 삭제하지 않고 유지했다.
 
 ### Redis 실행 및 연결 확인
 

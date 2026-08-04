@@ -6,7 +6,7 @@ from datetime import datetime
 import mysql.connector
 import redis
 from flask import Flask, jsonify, redirect, request
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 
 app = Flask(__name__)
@@ -23,22 +23,6 @@ def connect_mysql():
 
 
 redis_client = redis.Redis(host="redis", decode_responses=True)
-
-
-def prepare_user():
-    connection = connect_mysql()
-    cursor = connection.cursor()
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS users "
-        "(username VARCHAR(50) PRIMARY KEY, password_hash VARCHAR(255))"
-    )
-    cursor.execute("SELECT username FROM users WHERE username = %s", ("student",))
-    if cursor.fetchone() is None:
-        password_hash = generate_password_hash("1234")
-        cursor.execute("INSERT INTO users VALUES (%s, %s)", ("student", password_hash))
-        connection.commit()
-    cursor.close()
-    connection.close()
 
 
 def mode_info():
@@ -112,8 +96,6 @@ def index():
         if request.method == "POST":
             return login_page("점검 중에는 로그인할 수 없습니다.", show_alert=True)
         return login_page()
-
-    prepare_user()
 
     if request.method == "POST":
         username = request.form.get("username", "")
