@@ -102,3 +102,62 @@ Empty set (0.01 sec)
 ```
 
 `app_user` 계정으로 `login_db` 접속에 성공했다. 현재는 데이터베이스만 생성됐으며 사용자 정보를 저장할 테이블은 아직 만들지 않은 상태다.
+
+### Redis 실행 및 연결 확인
+
+```console
+$ docker compose up -d redis
+[+] Running 8/8
+ ✔ redis Pulled
+[+] Running 1/1
+ ✔ Container my-first-compose-redis-1  Started
+
+$ docker compose ps
+NAME                       IMAGE            SERVICE   STATUS       PORTS
+my-first-compose-mysql-1   mysql:8.4        mysql     Up 4 hours   3306/tcp, 33060/tcp
+my-first-compose-redis-1   redis:7-alpine   redis     Up 2 hours   6379/tcp
+```
+
+MySQL과 Redis가 같은 Compose 프로젝트에서 실행됐다. 두 서비스 모두 호스트 포트 매핑이 없으므로 Compose 내부 네트워크에서만 접근할 수 있다.
+
+처음에는 서비스 이름을 일반 Docker 명령에 사용해 오류가 발생했다.
+
+```console
+$ docker exec redis redis-cli PING
+Error response from daemon: No such container: redis
+```
+
+`docker exec`에는 실제 컨테이너 이름인 `my-first-compose-redis-1`이 필요하다. Compose 명령에서는 서비스 이름 `redis`를 사용할 수 있다.
+
+```console
+$ docker compose exec redis redis-cli PING
+PONG
+```
+
+Redis의 `PING` 명령에 `PONG`이 반환되어 Redis 서버가 명령을 처리할 수 있음을 확인했다.
+
+### Redis TTL 10초 확인
+
+```console
+$ docker compose exec redis redis-cli SET session:test app_user EX 10
+OK
+
+$ docker compose exec redis redis-cli TTL session:test
+(integer) 1
+
+$ docker compose exec redis redis-cli TTL session:test
+(integer) -2
+
+$ docker compose exec redis redis-cli GET session:test
+(nil)
+```
+
+`SET session:test app_user EX 10`은 다음과 같이 읽는다.
+
+- `SET`: Redis에 Key와 Value를 저장하는 명령어
+- `session:test`: 저장할 Key. `session`은 로그인 세션 용도이고 `test`는 실습용 이름이다. 콜론(`:`)은 관련 단어를 구분하기 위한 관례이며 특별한 연산자는 아니다.
+- `app_user`: Key에 저장할 Value. 여기서는 로그인한 사용자 이름을 뜻한다.
+- `EX`: 만료 시간을 초 단위로 설정하는 옵션
+- `10`: 10초 뒤 해당 Key를 자동으로 삭제한다는 뜻
+
+따라서 이 명령은 `session:test`라는 Key에 `app_user`를 저장하고 TTL(Time To Live)을 10초로 설정한다. 첫 번째 `TTL` 결과 `1`은 만료까지 약 1초가 남았다는 뜻이다. 이후 결과 `-2`와 `GET` 결과 `(nil)`은 10초가 지나 Key가 자동으로 삭제됐다는 뜻이다.

@@ -19,6 +19,10 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+  # 로그인 세션을 저장할 Redis 컨테이너
+  redis:
+    image: redis:7-alpine
+
 # 위에서 사용한 mysql-data 볼륨을 Compose가 생성하고 관리한다.
 volumes:
   mysql-data:
