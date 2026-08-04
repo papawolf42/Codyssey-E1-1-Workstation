@@ -174,6 +174,8 @@ my-first-compose-redis-1   redis:7-alpine         "docker-entrypoint.s…"   red
 
 Flask, MySQL, Redis가 함께 실행됐다. Flask만 호스트의 `5001`번 포트에 공개됐으며 MySQL과 Redis는 Compose 내부 네트워크에서만 접근할 수 있다.
 
+위 실행 당시에는 Compose가 `프로젝트명-서비스명-번호` 형식으로 컨테이너 이름을 자동 생성했다. 이후 `container_name`을 추가해 각각 `my-app`, `my-mysql`, `my-redis`라는 이름을 사용하도록 명시했다.
+
 ### Flask 정상 모드 확인
 
 ```console
