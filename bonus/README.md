@@ -9,7 +9,7 @@
 
 ## 1) 파일 준비
 
-- [ ] `compose.yaml`
+- [x] `compose.yaml`
 - [ ] `app.py`
 - [ ] `Dockerfile`
 - [ ] `requirements.txt`

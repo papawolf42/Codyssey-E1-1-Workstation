@@ -1,0 +1,24 @@
+# Compose 프로젝트 이름에는 공백을 사용할 수 없어 하이픈으로 연결한다.
+name: my-first-compose
+
+# services 아래에 실행할 컨테이너들을 정의한다.
+services:
+  # MySQL 데이터베이스 컨테이너
+  mysql:
+    # Docker Hub의 MySQL 8.4 이미지를 사용한다.
+    image: mysql:8.4
+
+    # MySQL 컨테이너가 시작할 때 사용할 실습용 설정값
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: login_db
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app1234
+
+    # 컨테이너가 삭제돼도 MySQL 데이터가 유지되도록 볼륨을 연결한다.
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+# 위에서 사용한 mysql-data 볼륨을 Compose가 생성하고 관리한다.
+volumes:
+  mysql-data:
