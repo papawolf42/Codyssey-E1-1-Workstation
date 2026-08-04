@@ -16,8 +16,8 @@
 
 ## 2) 보너스 1 — 단일 서비스
 
-- [ ] MySQL만 실행 — `docker compose up -d mysql`
-- [ ] 상태 확인 — `docker compose ps`
+- [x] MySQL만 실행 — `docker compose up -d mysql`
+- [x] 상태 확인 — `docker compose ps`
 - [ ] 단일 서비스 종료 — `docker compose down`
 
 ## 3) 보너스 2 — 멀티 컨테이너
@@ -62,3 +62,43 @@
 - [ ] 실제 명령과 출력이 README에 있음
 - [ ] 비밀번호 원문과 세션 Token을 출력하지 않음
 - [ ] `docker compose down`으로 실습 컨테이너 정리
+
+## 수행 기록
+
+### MySQL 단일 서비스 실행
+
+```console
+$ docker compose up -d mysql
+[+] Running 3/3
+ ✔ Network my-first-compose_default    Created
+ ✔ Volume my-first-compose_mysql-data  Created
+ ✔ Container my-first-compose-mysql-1  Started
+
+$ docker compose ps
+NAME                       IMAGE       SERVICE   STATUS          PORTS
+my-first-compose-mysql-1   mysql:8.4   mysql     Up 59 seconds   3306/tcp, 33060/tcp
+```
+
+MySQL 이미지와 컨테이너 하나를 Compose로 실행했다. `3306/tcp`는 컨테이너 내부 포트만 표시되고 호스트 포트 매핑은 없으므로 MySQL을 외부에 공개하지 않은 상태다.
+
+### MySQL 접속 확인
+
+```console
+$ docker compose exec mysql mysql -uapp_user -p login_db
+Enter password:
+Welcome to the MySQL monitor.
+Server version: 8.4.11 MySQL Community Server - GPL
+
+mysql> SELECT DATABASE(), CURRENT_USER();
++------------+----------------+
+| DATABASE() | CURRENT_USER() |
++------------+----------------+
+| login_db   | app_user@%     |
++------------+----------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW TABLES;
+Empty set (0.01 sec)
+```
+
+`app_user` 계정으로 `login_db` 접속에 성공했다. 현재는 데이터베이스만 생성됐으며 사용자 정보를 저장할 테이블은 아직 만들지 않은 상태다.
