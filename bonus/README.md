@@ -2,10 +2,10 @@
 
 ## 목표
 
-- [ ] Flask, MySQL, Redis 세 컨테이너 사용
-- [ ] MySQL에 사용자 ID와 비밀번호 해시 저장
-- [ ] Redis에 접속 시각과 TTL 10초 세션 저장
-- [ ] 10초 동안 이용하지 않으면 재로그인 안내
+- [x] Flask, MySQL, Redis 세 컨테이너 사용
+- [x] MySQL에 사용자 ID와 비밀번호 해시 저장
+- [x] Redis에 접속 시각과 TTL 10초 세션 저장
+- [x] 10초 동안 이용하지 않으면 재로그인 안내
 
 ## 1) 파일 준비
 
@@ -18,50 +18,50 @@
 
 - [x] MySQL만 실행 — `docker compose up -d mysql`
 - [x] 상태 확인 — `docker compose ps`
-- [ ] 단일 서비스 종료 — `docker compose down`
+- [x] 단일 서비스 종료 — `docker compose down`
 
 ## 3) 보너스 2 — 멀티 컨테이너
 
-- [ ] Flask, MySQL, Redis 실행 — `docker compose up -d --build`
-- [ ] 세 컨테이너 상태 확인 — `docker compose ps`
-- [ ] Flask가 서비스 이름 `mysql`로 MySQL에 연결
-- [ ] Flask가 서비스 이름 `redis`로 Redis에 연결
-- [ ] Flask 포트만 호스트에 공개
-- [ ] MySQL과 Redis 포트는 호스트에 공개하지 않음
+- [x] Flask, MySQL, Redis 실행 — `docker compose up -d --build`
+- [x] 세 컨테이너 상태 확인 — `docker compose ps`
+- [x] Flask가 서비스 이름 `mysql`로 MySQL에 연결
+- [x] Flask가 서비스 이름 `redis`로 Redis에 연결
+- [x] Flask 포트만 호스트에 공개
+- [x] MySQL과 Redis 포트는 호스트에 공개하지 않음
 
 ## 4) 로그인 세션
 
-- [ ] MySQL에 테스트 사용자 ID 저장
-- [ ] 비밀번호 원문 대신 해시 저장
-- [ ] 로그인 시 ID와 비밀번호 확인
-- [ ] 로그인 성공 시 Redis 세션 생성
-- [ ] Redis에 사용자 ID와 접속 시각 저장
-- [ ] 세션 TTL을 10초로 설정
-- [ ] 로그인 상태에서 요청하면 TTL을 다시 10초로 갱신
-- [ ] 10초 동안 요청하지 않으면 세션 자동 삭제
-- [ ] `세션이 만료되었습니다. 다시 로그인하세요.` 표시
-- [ ] 재로그인 성공 확인
+- [x] MySQL에 테스트 사용자 ID 저장
+- [x] 비밀번호 원문 대신 해시 저장
+- [x] 로그인 시 ID와 비밀번호 확인
+- [x] 로그인 성공 시 Redis 세션 생성
+- [x] Redis에 사용자 ID와 접속 시각 저장
+- [x] 세션 TTL을 10초로 설정
+- [x] 로그인 상태에서 요청하면 TTL을 다시 10초로 갱신
+- [x] 10초 동안 요청하지 않으면 세션 자동 삭제
+- [x] `세션이 만료되었습니다. 다시 로그인하세요.` 표시
+- [x] 재로그인 성공 확인
 
 ## 5) 보너스 3 — 운영 명령
 
-- [ ] 실행 — `docker compose up -d`
-- [ ] 상태 — `docker compose ps`
-- [ ] 로그 — `docker compose logs`
-- [ ] 종료 — `docker compose down`
-- [ ] Compose 운영 명령과 실행 결과를 README에 기록
+- [x] 실행 — `docker compose up -d`
+- [x] 상태 — `docker compose ps`
+- [x] 로그 — `docker compose logs`
+- [x] 종료 — `docker compose down`
+- [x] Compose 운영 명령과 실행 결과를 README에 기록
 
 ## 6) 보너스 4 — 환경변수
 
-- [ ] Dockerfile에서 `APP_MODE=normal`을 앱에 주입
-- [ ] 응답에서 `mode=normal` 확인
-- [ ] Compose에서 `APP_MODE=maintenance`로 변경
-- [ ] 코드 수정 없이 점검 안내와 `mode=maintenance`가 표시되는지 확인
+- [x] Dockerfile에서 `APP_MODE=normal`을 앱에 주입
+- [x] 응답에서 `mode=normal` 확인
+- [x] Compose에서 `APP_MODE=maintenance`로 변경
+- [x] 코드 수정 없이 점검 안내와 `mode=maintenance`가 표시되는지 확인
 
 ## 7) 최종 확인
 
-- [ ] 실제 명령과 출력이 README에 있음
-- [ ] 비밀번호 원문과 세션 Token을 출력하지 않음
-- [ ] `docker compose down`으로 실습 컨테이너 정리
+- [x] 실제 명령과 출력이 README에 있음
+- [x] 비밀번호 원문과 세션 Token을 출력하지 않음
+- [x] `docker compose down`으로 실습 컨테이너 정리
 
 ## 수행 기록
 
@@ -161,3 +161,42 @@ $ docker compose exec redis redis-cli GET session:test
 - `10`: 10초 뒤 해당 Key를 자동으로 삭제한다는 뜻
 
 따라서 이 명령은 `session:test`라는 Key에 `app_user`를 저장하고 TTL(Time To Live)을 10초로 설정한다. 첫 번째 `TTL` 결과 `1`은 만료까지 약 1초가 남았다는 뜻이다. 이후 결과 `-2`와 `GET` 결과 `(nil)`은 10초가 지나 Key가 자동으로 삭제됐다는 뜻이다.
+
+### 세 컨테이너 실행 확인
+
+```console
+$ docker compose ps
+NAME                       IMAGE                  COMMAND                  SERVICE   STATUS              PORTS
+my-first-compose-app-1     my-first-compose-app   "python app.py"          app       Up About a minute   0.0.0.0:5001->5000/tcp, [::]:5001->5000/tcp
+my-first-compose-mysql-1   mysql:8.4              "docker-entrypoint.s…"   mysql     Up 6 hours          3306/tcp, 33060/tcp
+my-first-compose-redis-1   redis:7-alpine         "docker-entrypoint.s…"   redis     Up 5 hours          6379/tcp
+```
+
+Flask, MySQL, Redis가 함께 실행됐다. Flask만 호스트의 `5001`번 포트에 공개됐으며 MySQL과 Redis는 Compose 내부 네트워크에서만 접근할 수 있다.
+
+### Flask 정상 모드 확인
+
+```console
+$ curl http://localhost:5001
+
+    <h1>My First Compose</h1>
+    <p>서비스를 이용할 수 있습니다.</p>
+    <p>로그인하세요.</p>
+    ...
+    <p>mode=normal</p>
+```
+
+Dockerfile의 `APP_MODE=normal`이 Flask 응답에 반영됐다. 이후 Compose에서 `APP_MODE=maintenance`를 주입해 로그인 시도 차단과 점검 안내가 표시되는 것도 확인한 뒤 정상 모드로 복구했다.
+
+### Compose 종료
+
+```console
+$ docker compose down
+[+] Running 4/4
+ ✔ Container my-first-compose-app-1    Removed
+ ✔ Container my-first-compose-mysql-1  Removed
+ ✔ Container my-first-compose-redis-1  Removed
+ ✔ Network my-first-compose_default    Removed
+```
+
+세 컨테이너와 Compose 네트워크를 정리했다. `docker compose down`에 `-v` 옵션을 사용하지 않았으므로 MySQL 데이터가 저장된 Named Volume은 유지된다.
