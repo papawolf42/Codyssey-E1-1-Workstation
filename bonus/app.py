@@ -50,8 +50,11 @@ def mode_info():
     return mode, mode_message
 
 
-def login_page(message="로그인하세요."):
+def login_page(message="로그인하세요.", show_alert=False):
     mode, mode_message = mode_info()
+    alert_script = ""
+    if show_alert:
+        alert_script = '<script>alert("서비스 점검 중이므로 로그인할 수 없습니다.");</script>'
     return f"""
     <h1>My First Compose</h1>
     <p>{mode_message}</p>
@@ -62,6 +65,7 @@ def login_page(message="로그인하세요."):
       <button type="submit">로그인</button>
     </form>
     <p>mode={mode}</p>
+    {alert_script}
     """
 
 
@@ -80,7 +84,10 @@ def main_page(username, message):
         const response = await fetch("/session-ttl");
         const data = await response.json();
         document.getElementById("remaining").textContent = data.remaining;
-        if (data.expired) location.reload();
+        if (data.expired) {{
+          alert("단시간 이용하지 않아 로그아웃됩니다.");
+          location.href = "/";
+        }}
       }}, 1000);
     </script>
     """
@@ -101,6 +108,11 @@ def session_ttl():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    if os.getenv("APP_MODE", "normal") == "maintenance":
+        if request.method == "POST":
+            return login_page("점검 중에는 로그인할 수 없습니다.", show_alert=True)
+        return login_page()
+
     prepare_user()
 
     if request.method == "POST":
